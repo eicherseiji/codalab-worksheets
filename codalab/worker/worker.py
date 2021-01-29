@@ -436,6 +436,7 @@ class Worker:
             self.last_checkin_successful = False
             response = None
         # Stop processing any new runs received from server
+        logger.info(f'yibo - response is {str(response)}')
         if not response or self.terminate_and_restage or self.terminate:
             return
         action_type = response['type']

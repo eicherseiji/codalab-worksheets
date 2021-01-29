@@ -177,6 +177,7 @@ def start_bundle_container(
 
     # Name the container with the UUID for readability
     container_name = 'codalab_run_%s' % uuid
+    logger.info(f'yibo - tty is {tty}')
     try:
         container = client.containers.run(
             image=docker_image,

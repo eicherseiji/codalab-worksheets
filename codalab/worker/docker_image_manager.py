@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, Generator
 import threading
 import time
 import traceback
@@ -50,6 +50,12 @@ class DockerImageManager:
         self._stop = False
         self._sleep_secs = 10
         self._cleanup_thread = None
+
+        # def empty():
+        #     yield from ()
+
+        # self.generator: Generator = empty()
+        self.current_docker_image_download_status = {}
 
     def start(self):
         logger.info("Starting docker image manager")
@@ -243,7 +249,13 @@ class DockerImageManager:
                 def download():
                     logger.debug('Downloading Docker image %s', image_spec)
                     try:
-                        self._docker.images.pull(image_spec)
+                        # self._docker.images.pull(image_spec)
+                        client = docker.APIClient(base_url='unix://var/run/docker.sock')
+                        self.generator = client.pull(image_spec, stream=True, decode=True)
+                        logger.info('yibo - docker image is being downloaded')
+                        for line in self.generator:
+                            self.current_docker_image_download_status = line
+
                         logger.debug('Download for Docker image %s complete', image_spec)
                         self._downloading[image_spec]['success'] = True
                         self._downloading[image_spec]['message'] = "Downloading image"

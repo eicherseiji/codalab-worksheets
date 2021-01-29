@@ -1,3 +1,4 @@
+import logging
 from contextlib import closing
 from io import StringIO
 import http.client
@@ -9,6 +10,9 @@ from typing import Dict
 
 from .file_util import un_gzip_stream
 from codalab.common import URLOPEN_TIMEOUT_SECONDS, urlopen_with_retry
+
+
+logger = logging.getLogger(__name__)
 
 
 class RestClientException(Exception):
@@ -87,6 +91,7 @@ class RestClient(object):
 
         # Make the actual request
         request = urllib.request.Request(request_url, data=data, headers=headers)
+        logger.info(f'yibo - url is {request_url}')
         request.get_method = lambda: method
         if return_response:
             # Return a file-like object containing the contents of the response
@@ -105,8 +110,13 @@ class RestClient(object):
             # If the response is a JSON document, as indicated by the
             # Content-Type header, try to deserialize it and return the result.
             # Otherwise, just ignore the response body and return None.
-            if response.headers.get('Content-Type') == 'application/json':
+            logger.info(f"yibo - content type is {response.headers.get('Content-Type')}")
+            if response.headers.get('Content-Type') in [
+                'application/json',
+                'text/html; charset=UTF-8',
+            ]:
                 response_data = response.read().decode()
+                logger.info(f'yibo - response data is {str(response_data)}')
                 try:
                     return json.loads(response_data)
                 except ValueError:
