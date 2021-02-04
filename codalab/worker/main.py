@@ -209,7 +209,8 @@ def main():
 
     # Configure logging
     logging.basicConfig(
-        format='%(asctime)s %(message)s %(pathname)s %(lineno)d', level=(logging.DEBUG if args.verbose else logging.INFO)
+        format='%(asctime)s %(message)s %(pathname)s %(lineno)d',
+        level=(logging.DEBUG if args.verbose else logging.INFO),
     )
 
     # Initialize sentry logging
