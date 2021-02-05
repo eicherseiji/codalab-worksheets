@@ -213,7 +213,7 @@ def main():
         level=(logging.DEBUG if args.verbose else logging.INFO),
     )
 
-    if args.verbose:
+    if not args.verbose:
         logging.getLogger('urllib3').setLevel(logging.INFO)
 
     # Initialize sentry logging
