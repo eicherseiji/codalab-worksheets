@@ -459,6 +459,10 @@ class Worker:
                 self.netcat(socket_id, uuid, response['port'], response['message'])
             elif action_type == 'write':
                 self.write(uuid, response['subpath'], response['string'])
+            elif action_type == 'mark_upload_results_finished':
+                self.mark_upload_results_finished(uuid)
+            elif action_type == 'mark_upload_results_failed':
+                self.mark_upload_results_failed(uuid)
             else:
                 logger.warning("Unrecognized action type from server: %s", action_type)
 
@@ -641,6 +645,8 @@ class Worker:
                 kill_message=None,
                 finished=False,
                 finalized=False,
+                upload_results_finished=False,
+                upload_results_failed=False,
                 is_restaged=False,
             )
             # Increment the number of runs that have been successfully started on this worker
@@ -668,6 +674,18 @@ class Worker:
         Marks the run with uuid as finalized so it might be purged from the worker state
         """
         self.runs[uuid] = self.runs[uuid]._replace(finalized=True)
+
+    def mark_upload_results_finished(self, uuid):
+        """
+        Marks the upload for the run with uuid as finished so it can move past the "Uploading Results" stage
+        """
+        self.runs[uuid] = self.runs[uuid]._replace(upload_results_finished=True)
+
+    def mark_upload_results_finished(self, uuid):
+        """
+        Marks the upload for the run with uuid as finished so it can move past the "Uploading Results" stage
+        """
+        self.runs[uuid] = self.runs[uuid]._replace(upload_results_failed=True)
 
     def read(self, socket_id, uuid, path, args):
         def reply(err, message={}, data=None):

@@ -159,7 +159,7 @@ class BundleServiceClient(RestClient):
             self._upload_with_chunked_encoding(
                 'PUT',
                 '/bundles/' + uuid + '/contents/blob/',
-                query_params={'filename': 'bundle.tar.gz', 'finalize_on_success': 0},
+                query_params={'filename': 'bundle.tar.gz', 'finalize_on_success': 0, 'notify_worker_id_on_success': worker_id},
                 fileobj=fileobj,
                 progress_callback=progress_callback,
             )

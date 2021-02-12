@@ -570,6 +570,9 @@ class RunStateMachine(StateTransitioner):
             the callback returns false, allowing killable uploads.
         If uploading and not finished:
             Update run_status with upload progress
+        If uploading has finished, but still waiting on a server response to
+        acknowledge that bundle has been uploaded successfully:
+            Update run_status with upload status
         If uploading and finished:
             Move to FINALIZING state
         """
@@ -622,6 +625,19 @@ class RunStateMachine(StateTransitioner):
                 run_state = run_state._replace(
                     failure_message=self.uploading[run_state.bundle.uuid]['run_status']
                 )
+        elif run_state.upload_results_failed:
+            # Upload failed, an error from the server acknowledgement.
+            run_state = run_state._replace(
+                failure_message=(
+                    failure_message + 'Uploading results failed on the server end.'
+                )
+            )
+        elif not run_state.upload_results_finished:
+            # Still waiting for the server to acknowledge that the bundle
+            # has been uploaded successfully.
+            return run_state._replace(
+                run_status='Uploading results: Upload finished, waiting for server acknowledgement'
+            )
 
         self.uploading.remove(run_state.bundle.uuid)
         return self.finalize_run(run_state)
